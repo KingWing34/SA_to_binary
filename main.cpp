@@ -16,7 +16,7 @@
 void print_help(char *argv[]);
 
     //=====================================================
-    // Do actual converting stuffin finally!
+    // Convert ASCII codes
 
 int pre_convert(int c) {
 
@@ -40,6 +40,7 @@ int pre_convert(int c) {
     // This function gets the size of input bits
 
 int get_size(char byte) {
+
     unsigned char i = 0b10000000;
 
     int size = 0;
@@ -55,20 +56,47 @@ int get_size(char byte) {
 }
 
     //=====================================================
+    // Reverse the bit order
+
+int bitorder(char bits) {
+
+    unsigned char i = 0b10000000;
+
+    int rbits = 0;
+
+    while(i > 0) {
+        rbits = rbits << 1;
+        rbits = rbits | (bits & i);
+        i = i >> 1;
+    }
+    rbits = rbits >> 8;
+    return rbits;
+}
+
+    //=====================================================
+    // Invert bits in a byte
+
+int invert(char i) {
+    i =~ i;
+    return i;
+}
+
+    //=====================================================
     // This is where this program does its things
 
 int check(int argc, char *argv[]) {
 
     // Set valid arguments
 
-    argv_set(valid, 0, "-h", argc, argv); // works
-    argv_set(valid, 1, "-p", argc, argv); // TODO
-    argv_set(valid, 2, "-s", argc, argv); // TODO
-    argv_set(valid, 3, "-i", argc, argv); // TODO
+    argv_set(valid, 0, "-h", argc, argv);
+    argv_set(valid, 1, "-p", argc, argv); // TODO (-t required)
+    argv_set(valid, 2, "-s", argc, argv);
+    argv_set(valid, 3, "-i", argc, argv);
     argv_set(valid, 4, "-c", argc, argv); // TODO later
-    argv_set(valid, 5, "-in", argc, argv); // works
-    argv_set(valid, 6, "-out", argc, argv); // works
-    argv_set(valid, 7, "-t", argc, argv); // TODO
+    argv_set(valid, 5, "-in", argc, argv);
+    argv_set(valid, 6, "-out", argc, argv);
+    argv_set(valid, 7, "-t", argc, argv); // TODO (-p required)
+    argv_set(valid, 8, "-e", argc, argv); // TODO
 
     // Print help and exit if -h argument given
 
@@ -134,32 +162,45 @@ int check(int argc, char *argv[]) {
         s = 0;
     }
 
-    // Convert
+    // Variables used in the converter code below
 
     int a = 0;
     int b = 0;
     int c = 0;
-    int nused;
+    int nused = 8 - s;
     int abs = 0;
     int r = 0;
 
+    // Read first character from file
 
     a = fgetc(fp_in);
     a = pre_convert(a);
 
+    // Loop until EOF is reached
+
     while(a != EOF) {
-        nused = 8;
+
+        // Set result (r) to 0
+
         r = 0;
+
+        // Add bits to result until nused is less than or equal to 0
+
         while(nused > 0 && a != EOF) {
             r = (r << get_size(a)) | a;
             nused = nused - get_size(a);
             if(nused > 0) {
                 a = fgetc(fp_in);
-                if( a == EOF ) // add EOF detection (done)
+                if( a == EOF )
                     break;
                 a = pre_convert(a);
             }
         }
+
+        // If nused is less than 0, then do operations to split result
+        // into 2 separate bytes. Write one to the output file and the other then takes
+        // the place of result.
+
         if(nused < 0 && a != EOF) {
             abs = 0;
             while(nused != 0) {
@@ -174,27 +215,54 @@ int check(int argc, char *argv[]) {
             }
             a = r & b;
             r = r >> abs;
-            // std::cout << r << "\n";
-            fputc((unsigned char) r, fp_out);
+            if(argv_get(valid, 8)[0] == '-' ) {
+                r = bitorder(r);
+            }
+            if(argv_get(valid, 3)[0] == '-' ) {
+                r = invert(r);
+            }
+            fputc((unsigned char) r, fp_out); // write to file
             r = b;
             nused = 8 - abs;
             a = fgetc(fp_in);
-            if( a == EOF ) // add EOF detection (done)
+            if( a == EOF )
                 break;
             a = pre_convert(a);
         }
+
+        // If nused is 0, write result to output file.
+
         if(nused == 0 && a != EOF) {
             a = fgetc(fp_in);
-            if( a == EOF ) // add EOF detection (done)
+            if( a == EOF )
                 break;
             a = pre_convert(a);
         }
+
+        // If EOF is reached, shift result right by nused.
+
         if(a == EOF){
             r = r << nused;
         }
-        // std::cout << r << "\n";
+
+        // Set "unused" bits (nused) to 8
+
+        nused = 8;
+
+        // Write result to output file
+        if(argv_get(valid, 8)[0] == '-' ) {
+            r = bitorder(r);
+        }
+        if(argv_get(valid, 3)[0] == '-' ) {
+            r = invert(r);
+        }
         fputc((unsigned char) r, fp_out);
     }
+
+    // Close files and exit
+
+    fclose(fp_in);
+    fclose(fp_out);
     return 0;
 }
 
@@ -229,7 +297,7 @@ int main(int argc, char *argv[]) {
 
 void print_help(char *argv[]) {
     const char *text1 =
-    "SA to binary converter v1.0\n\n"
+    "SA to binary converter v1.1\n\n"
     "Usage:\n";
     std::cout << text1;
 
@@ -242,10 +310,11 @@ void print_help(char *argv[]) {
     "Options:\n"
     " -in  <file_name>  File input\n"
     " -out <file_name>  File output\n"
+    " -e                Reverse bit order\n"
    // " -t <n>            Type (where n is 2-32)\n"
+    " -i                Invert output\n"
    // " -p                Try all possibilities\n"
-   // " -i                Invert output\n"
-   // " -s <n>            Shift bits (where n is 1-7)\n"
+    " -s <n>            Shift bits (where n is 1-7)\n"
    // " -c                crazy (check github for explanation)\n"
     " -h                Prints this help message\n";
     std::cout << text2;
