@@ -56,7 +56,7 @@ int get_size(char byte) {
 }
 
     //=====================================================
-    // Reverse the bit order
+    // Reverse the bit order TODO
 
 int bitorder(char bits) {
 
@@ -64,12 +64,6 @@ int bitorder(char bits) {
 
     int rbits = 0;
 
-    while(i > 0) {
-        rbits = rbits << 1;
-        rbits = rbits | (bits & i);
-        i = i >> 1;
-    }
-    rbits = rbits >> 8;
     return rbits;
 }
 
@@ -310,7 +304,7 @@ void print_help(char *argv[]) {
     "Options:\n"
     " -in  <file_name>  File input\n"
     " -out <file_name>  File output\n"
-    " -e                Reverse bit order\n"
+   // " -e                Reverse bit order\n"
    // " -t <n>            Type (where n is 2-32)\n"
     " -i                Invert output\n"
    // " -p                Try all possibilities\n"
