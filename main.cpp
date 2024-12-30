@@ -56,14 +56,21 @@ int get_size(char byte) {
 }
 
     //=====================================================
-    // Reverse the bit order TODO
+    // Reverse the bit order
 
-int bitorder(char bits) {
+int Rbitorder(char bits) {
 
     unsigned char i = 0b10000000;
 
     int rbits = 0;
 
+    int shift = 7;
+
+    while(i > 0) {
+    rbits = rbits | (((bits & i) << (7 - shift)) >> shift);
+    shift = shift - 1;
+    i = i >> 1;
+    }
     return rbits;
 }
 
@@ -90,7 +97,7 @@ int check(int argc, char *argv[]) {
     argv_set(valid, 5, "-in", argc, argv);
     argv_set(valid, 6, "-out", argc, argv);
     argv_set(valid, 7, "-t", argc, argv); // TODO (-p required)
-    argv_set(valid, 8, "-e", argc, argv); // TODO
+    argv_set(valid, 8, "-e", argc, argv);
 
     // Print help and exit if -h argument given
 
@@ -210,7 +217,7 @@ int check(int argc, char *argv[]) {
             a = r & b;
             r = r >> abs;
             if(argv_get(valid, 8)[0] == '-' ) {
-                r = bitorder(r);
+                r = Rbitorder(r);
             }
             if(argv_get(valid, 3)[0] == '-' ) {
                 r = invert(r);
@@ -245,7 +252,7 @@ int check(int argc, char *argv[]) {
 
         // Write result to output file
         if(argv_get(valid, 8)[0] == '-' ) {
-            r = bitorder(r);
+            r = Rbitorder(r);
         }
         if(argv_get(valid, 3)[0] == '-' ) {
             r = invert(r);
@@ -304,7 +311,7 @@ void print_help(char *argv[]) {
     "Options:\n"
     " -in  <file_name>  File input\n"
     " -out <file_name>  File output\n"
-   // " -e                Reverse bit order\n"
+    " -e                Reverse bit order\n"
    // " -t <n>            Type (where n is 2-32)\n"
     " -i                Invert output\n"
    // " -p                Try all possibilities\n"
