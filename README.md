@@ -7,10 +7,6 @@ type signals.
 This program turns the ASCII output from SA's decoders into binary files, which can then be
 analyzed further in a hex editor or binary viewer.
 
-### This program is not completely finished yet!
-
-It does work, but it's really only useful for 1's and 0's currently.
-
 ## Features
 
 Other than converting the ASCII to binary which is described below this program can also:
@@ -18,17 +14,20 @@ Other than converting the ASCII to binary which is described below this program 
 * Shift the output by 1-7 bits
 * Invert the output
 * Reverse the bit order in a byte
+* Use your own custom table (recommended)
 
 ### Note: Shift works by placing extra 0's at the beginning of the file.
+
+**See "table_example.txt" for the table format**
 
 ## Operation
 
 This is how the converter works:
 
 First it takes ASCII characters and converts them into their corresponding binary number
-according to the table below. (soon an option to use a custom table will be added..)
+according to the table below or according to your custom table.
 
-### Note: If type is not given, the default is 2.
+**Note: If type is not given, the default is 2.**
 
 ```
     | TYPE: | IN: |  OUT:  |
@@ -72,18 +71,16 @@ according to the table below. (soon an option to use a custom table will be adde
 
 ```
 
-### Note: This program will ignore other characters that are not found in the table.
+**Note: This program will ignore other characters that are not found in the table.**
 
 It then concatenates the bits until a "full" byte is achived.
-
-### Note: Depending on -t, a bit from the table may be saved as a di-bit, tri-bit ...
 
 In case cancatenating 2 or more bits results in more than 8 bits, the program splits them.
 One byte is saved and the other remaining bits continue to be concatenated with more bits
 until a "full" byte is reached again. Once there are no more bits from the input file left, if
 there are any remaining concatenated bits that do not make a byte, they are then padded with 0's.
 
-### Important:
+**Important:**
 
 The bits are saved to the file MSb first! Using the reverse bit order option, they will be saved LSb first!
 
@@ -136,7 +133,7 @@ Ex. 4:
 Type: 2
 Input: AA11
 
-A will get ignored, 1 is 1 ...
+ A will get ignored, 1 is 1 ...
 
 Output: 11
 
@@ -163,5 +160,4 @@ At least compiling for Windows on Linux seems to break something. It runs, but d
 * Find a way to compile for Windows so that the program works properly like on Linux.
 * Add option: Try different combinations by rotating the table
 * Add option: Try all combinations.
-* Add option: Convert using custom table.
 * Add GUI maybe.

@@ -1,0 +1,42 @@
+# Anything after a "#" gets ignored, but the ignoring technique
+# isn't perfect so don't do for ex:
+# "0 # whatever text"
+# Also, everything is case sensitive
+# ----------------------------------------------------
+# Table format:
+# [Character from input file (0-9, A-U)] [output in bits (max 8)]
+0 000
+1 100
+2 010
+3 110
+# ----------------------------------------------------
+# Spaces are ok like this:
+
+4 101
+
+5 111
+
+# You can even mix different sizes like:
+
+6 10100
+7 101
+
+# The result of "67" would then be just as written:
+# MSb 10100101 LSb
+
+# Just don't do:
+# "5 10"
+# "5 11"
+# "5 01"
+# (Repeating input characters)
+# This will give an error of course.
+
+# You can however have multiple of the same output bits like:
+
+8 1010
+9 1010
+A 1010
+
+# I know this is kinda overkill, but whatever.
+
+# Enjoy
