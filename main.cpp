@@ -1,13 +1,16 @@
 /*
+ *
+ *
+ *
  * Main code
  *
  *
  *
- *
  */
+
 #include <iostream>
 #include "argv.h"
-#include <stdlib.h>
+#include "TableParse.h"
 
     //=====================================================
     // This function was moved under the main function to keep the
@@ -18,12 +21,17 @@ void print_help(char *argv[]);
     //=====================================================
     // Convert ASCII codes
 
-int pre_convert(int c, int t, int r) {
-            //(input, type, rotate)
+int pre_convert(int c) {
+
+    int i = 0;
+
+    // Return EOF if that's whats given
 
     if(c == EOF) {
         return EOF;
     }
+
+    // ASCII codes: 65-86 are A-V, 48-57 are 0-9
 
     if(c >= 48 && c <= 57) {
         c = c - 48;
@@ -32,62 +40,22 @@ int pre_convert(int c, int t, int r) {
     } else {
         return -2;
     }
-    if(c >= t) {
-        return -2;
-    }
 
-    // Rotate by r if r is not 0
+    while(i < Telements) {
+        if(c == Tinput[i]) {
+            c = i;
+            break;
+        }
 
-    if(r != 0) {
-        c = c + r;
-        if(c > (t - 1)) {
-            c = c - (t - 1);
+        i++;
+
+        if(i == Telements) {
+            return -2;
         }
     }
 
-    // Return converter result
+    // Return converter result (0-31 for valid characters, -2 for invalid)
     return c;
-}
-
-    //=====================================================
-    // This function gets the size of input bits
-
-int get_size(char byte, int t) {
-
-    if(t == 2) {
-        return 1;
-    }
-    if(t >= 3 && t <= 4) {
-        return 2;
-    }
-    if(t >= 5 && t <= 8) {
-        return 3;
-    }
-    if(t >= 9 && t <= 16) {
-        return 4;
-    }
-    if(t >= 17 && t <= 32) {
-        return 5;
-    }
-
-    // previous code (may be useful later?)
-
-    /*
-    unsigned char i = 0b10000000;
-
-    int size = 0;
-
-    // If 'i' is not 0, figure out how many bits are used
-
-    if(byte != 0) {
-        while(((i >> size) | byte) > byte) size++;
-        return 8 - size;
-    } else {
-        return 1;
-    }
-    */
-
-    return 1;
 }
 
     //=====================================================
@@ -133,39 +101,13 @@ int check(int argc, char *argv[]) {
     argv_set(valid, 6, "-out", argc, argv);
     argv_set(valid, 7, "-t", argc, argv);
     argv_set(valid, 8, "-e", argc, argv);
-    argv_set(valid, 9, "-table", argc, argv); //TODO
+    argv_set(valid, 9, "-Table", argc, argv);
 
     // Print help and exit if -h argument given
 
     if(argv_get(valid, 0)[0] == '-') {
         print_help(argv);
         return 1;
-    }
-
-    // Manage file I/O
-
-    FILE *fp_in, *fp_out;
-    char *in_name = argv_get(valid, 5);
-    char *out_name = argv_get(valid, 6);
-    const char *default_name = "converter_out.bin";
-
-    // Check if input file is readable
-
-    if ((fp_in = fopen(in_name,"rb")) == NULL) {
-		std::cout << "ERROR: cannot read file " << in_name << ".\n";
-		return 1;
-    }
-
-    // Check if the -out option is given, then check if output
-    // file is writable otherwise make output file using default name
-
-    if(argv_get(valid, 6)[0]) {
-        if ((fp_out = fopen(out_name,"w")) == NULL) {
-		std::cout << "ERROR: cannot write file " << out_name << ".\n";
-		return 1;
-        }
-    } else if ((fp_out = fopen(default_name,"w")) == NULL) {
-        std::cout << "ERROR: cannot write file " << out_name << ".\n";
     }
 
     // Read -t (default is 2)
@@ -181,6 +123,18 @@ int check(int argc, char *argv[]) {
         }
     } else {
         n = 2;
+    }
+
+    // Parse custom table file or create default table
+
+    if(argv_get(valid, 9)[0]) {
+        if(TRead() == 1) {
+            std::cout << "ERROR parsing table, stopped at element: ";
+            printf("%d\n", Telements);
+            return 1;
+        }
+    } else {
+        DefTable(n);
     }
 
     // read -s (default is 0)
@@ -199,6 +153,31 @@ int check(int argc, char *argv[]) {
         s = 0;
     }
 
+    // Manage file I/O
+
+    FILE *fp_in, *fp_out;
+    char *in_name = argv_get(valid, 5);
+    char *out_name = argv_get(valid, 6);
+
+    // Check if input file is readable
+
+    if ((fp_in = fopen(in_name,"rb")) == NULL) {
+		std::cout << "ERROR: cannot read file " << in_name << ".\n";
+		return 1;
+    }
+
+    // Check if the -out option is given, then check if output
+    // file is writable otherwise make output file using default name
+
+    if(argv_get(valid, 6)[0]) {
+        if ((fp_out = fopen(out_name,"w")) == NULL) {
+		std::cout << "ERROR: cannot write file " << out_name << ".\n";
+		return 1;
+        }
+    } else if ((fp_out = fopen("converter_out.bin","w")) == NULL) {
+        std::cout << "ERROR: cannot write file " << out_name << ".\n";
+    }
+
     // Variables used in the converter code below
 
     int a = 0;
@@ -208,17 +187,20 @@ int check(int argc, char *argv[]) {
     int used = s;
     int r = 0;
     int rotate = 0;
+    int size = 0;
 
     // Loop until all characters are converted
 
     while(a != EOF) {
         while(a != EOF && used < 8) {
             a = fgetc(fp_in);
-            a = pre_convert(a,n,rotate);
+            a = pre_convert(a);
             if(a < 0)
                 continue;
-            r = (r << get_size(a,n)) | a;
-            used = used + get_size(a,n);
+            size = Tsize[a];
+            a = Tvalue[a];
+            r = (r << size) | a;
+            used = used + size;
         }
         if(used > 8) {
             c = 0;
@@ -290,7 +272,7 @@ int main(int argc, char *argv[]) {
 
 void print_help(char *argv[]) {
     const char *text1 =
-    "SA to binary converter v1.2\n\n"
+    "SA to binary converter v1.3\n\n"
     "Usage:\n";
     std::cout << text1;
 
@@ -303,7 +285,7 @@ void print_help(char *argv[]) {
     "Options:\n"
     " -in  <file_name>   File input\n"
     " -out <file_name>   File output\n"
-    // " -table <file name> (see github for table format)\n" // TODO
+    " -Table <file name> (see github for table format)\n"
     // " -c                 Try all combinations\n" // TODO
     " -e                 Reverse bit order\n"
     " -i                 Invert output\n"
