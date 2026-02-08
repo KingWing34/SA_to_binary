@@ -12,7 +12,7 @@ void PrintHelp(char argv[]);
     // Convert ASCII codes
 int pre_convert(int c) {
 
-    int i = 0;
+    int i {0};
 
     // Return EOF if that's whats given
     if(c == EOF) return EOF;
@@ -49,8 +49,8 @@ int pre_convert(int c) {
 int Rbitorder(char bits) {
 
     unsigned char i = 0b10000000;
-    int rbits = 0;
-    int shift = 7;
+    int rbits {0};
+    int shift {7};
 
     while(i > 0) {
         rbits = rbits | (((bits & i) << (7 - shift)) >> shift);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
             return 1;
             break;
         case -3:
-            PrintHelp(argv[0]);\
+            PrintHelp(argv[0]);
             return 1;
             break;
     }
@@ -167,13 +167,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Variables used in the converter code below
-    int a = 0;
-    int b = 0;
-    int c = 0;
-    int d = 0;
-    int used = s;
-    int r = 0;
-    int size = 0;
+    int a {0};
+    int b {0};
+    int c {0};
+    int d {0};
+    int used {s};
+    int r {0};
+    int size {0};
 
     // Loop until all characters are converted
     while(a != EOF) {

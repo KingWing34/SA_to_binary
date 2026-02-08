@@ -6,7 +6,7 @@
 int Tvalue[32];
 int Tinput[32];
 int Tsize[32];
-int Telements = 0;
+int Telements {0};
 
 
     // Very similar to pre_convert() in main.cpp
@@ -49,9 +49,9 @@ int TRead(char *table_name) {
     }
 
     // More variables for the rest of the code in this function
-    int a = 0;
-    int count = 0;
-    int part = 0;
+    int a {0};
+    int count {0};
+    int part {0};
 
     // Do some parsing code, uh, I dunno if this is the right way to do it but whatever
     while(a != EOF) {
@@ -125,7 +125,7 @@ int TRead(char *table_name) {
     }
 
     // Print table elements
-    PrintErrWithVariable(2, 0, &Telements);
+    PrintInfoWithVariable(2, 0, &Telements);
 
     count = 0;
     // "Table input,output,size (dec):"
@@ -147,9 +147,9 @@ int TRead(char *table_name) {
     // Makes the default table
 int DefTable(int n) {
 
-    unsigned char i = 0b10000000;
-    int count = 0;
-    int size = 0;
+    unsigned char i {0b10000000};
+    int count {0};
+    int size {0};
 
     while(((i >> size) | (n - 1)) > (n - 1)) size++;
     size = 8 - size;

@@ -5,7 +5,7 @@ YELLOW='\033[1;33m'
 GREEN='\033[1;32m'
 NC='\033[0m'
 
-COMPILER_FLAGS="-std=c++17"
+COMPILER_FLAGS="-std=c++17 -O2"
 WARN_FLAGS="-Wall -Wextra -pedantic"
 
 # Exit on error
@@ -38,7 +38,7 @@ g++ -c main.cpp \
 echo -e "${YELLOW}Basically linking everything together at this point!${NC}"
 
 cd build
-g++ PrintInfo.o ParseArgv.o TableParse.o main.o -o sa_to_binary
+g++ -s PrintInfo.o ParseArgv.o TableParse.o main.o -o sa_to_binary
 cd ../
 
 echo -e "${GREEN}Done!${NC}"
