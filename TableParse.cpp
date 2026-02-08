@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdlib>
 #include "PrintInfo.h"
-#include "argv.h"
 
 
 int Tvalue[32];
@@ -37,11 +36,10 @@ int FilterCharacters(int c) {
 
 
     // Reads the table file and stores the values in the appropriate array
-int TRead() {
+int TRead(char *table_name) {
 
     // File related variables
     FILE *table_in;
-    char *table_name = argv_get(valid, 9);
 
     // Check if file can be read
     if ((table_in = fopen(table_name,"rb")) == NULL) {

@@ -1,13 +1,9 @@
 #include <iostream>
 #include <cstdlib>
+#include "ParseArgv.h"
 #include "PrintInfo.h"
-#include "argv.h"
 #include "TableParse.h"
 
-    // TableParse.cpp
-int FilterCharacters(int c);
-int TRead();
-int DefTable(int n);
 
     // At the bottom of this file to look better
 void PrintHelp(char argv[]);
@@ -78,39 +74,44 @@ int invert(char i) {
     // This is where this program does its things
 int main(int argc, char *argv[]) {
 
-    // If too many arguments, tell user to check help and print help!
-    if ( argc > 12) {
-        PrintHelp(argv[0]);
-        PrintError(4);
-        return 1;
+    // Use return value from FindArg() to stop program in case
+    // of errors.
+    switch(FindArg(argc, argv, 0, "-in", 3)) {
+        case -1:
+            PrintHelp(argv[0]);
+            PrintError(4);
+            return 1;
+            break;
+        case -2:
+            PrintHelp(argv[0]);
+            PrintError(4);
+            return 1;
+            break;
+        case -3:
+            PrintHelp(argv[0]);\
+            return 1;
+            break;
     }
 
-    // No arguments, print help
-    if ( argc == 1) {
-        PrintHelp(argv[0]);
-        return 1;
-    }
-
-    // Set valid arguments
-    argv_set(valid, 0, "-h", argc, argv);
-    argv_set(valid, 2, "-s", argc, argv);
-    argv_set(valid, 3, "-i", argc, argv);
-    argv_set(valid, 5, "-in", argc, argv);
-    argv_set(valid, 6, "-out", argc, argv);
-    argv_set(valid, 7, "-t", argc, argv);
-    argv_set(valid, 8, "-e", argc, argv);
-    argv_set(valid, 9, "-Table", argc, argv);
-
-    // Print help and exit if -h argument given
-    if(argv_get(valid, 0)[0] == '-') {
+    if(FindArg(argc, argv, 1, "-h", 2) == 0) {
         PrintHelp(argv[0]);
         return 1;
     }
 
-    // Read -t (default is 2)
+    // Argument "init"
+    // (argc, argv, ID, string, string size);
+    FindArg(argc, argv, 2, "-skip", 5);
+    FindArg(argc, argv, 3, "-i", 2);
+    FindArg(argc, argv, 4, "-out", 4);
+    FindArg(argc, argv, 5, "-type", 5);
+    FindArg(argc, argv, 6, "-r", 2);
+    FindArg(argc, argv, 7, "-table", 6);
+
+
+    // Read -type (default is 2)
     int n;
-    if(argv_get(valid, 7)[0]) {
-        n = strtol(argv_get(valid, 7), NULL, 10);
+    if(CheckArg(5)) {
+        n = strtol(GetArgv(5), NULL, 10);
         PrintInfoWithVariable(0, 0, &n);
         if(n < 2 || n > 32) {
             PrintError(0);
@@ -121,19 +122,19 @@ int main(int argc, char *argv[]) {
     }
 
     // Parse custom table file or create default table
-    if(argv_get(valid, 9)[0]) {
-        if(TRead() == 1) {
-            PrintInfoWithVariable(5, 0, &Telements);
+    if(CheckArg(7)) {
+        if(TRead(GetArgv(7)) == 1) {
+            PrintErrWithVariable(5, 0, &Telements);
             return 1;
         }
     } else {
         DefTable(n);
     }
 
-    // read -s (default is 0)
+    // read -skip (default is 0)
     int s;
-    if(argv_get(valid, 2)[0]) {
-        s = strtol(argv_get(valid, 2), NULL, 10);
+    if(CheckArg(2)) {
+        s = strtol(GetArgv(2), NULL, 10);
         PrintInfoWithVariable(1, 0, &s);
         if (s < 0 || s > 7) {
             PrintError(1);
@@ -145,8 +146,8 @@ int main(int argc, char *argv[]) {
 
     // Manage file I/O
     FILE *fp_in, *fp_out;
-    char *in_name = argv_get(valid, 5);
-    char *out_name = argv_get(valid, 6);
+    char *in_name = GetArgv(0);
+    char *out_name = GetArgv(4);
 
     // Check if input file is readable
     if ((fp_in = fopen(in_name,"rb")) == NULL) {
@@ -156,7 +157,7 @@ int main(int argc, char *argv[]) {
 
     // Check if the -out option is given, then check if output
     // file is writable otherwise make output file using default name
-    if(argv_get(valid, 6)[0]) {
+    if(CheckArg(4)) {
         if ((fp_out = fopen(out_name,"w")) == NULL) {
 		PrintError(3);
 		return 1;
@@ -200,10 +201,10 @@ int main(int argc, char *argv[]) {
             r = r << (8 - used);
         }
         if((a == EOF && used != 0) || used == 8) {
-            if(argv_get(valid, 8)[0] == '-' ) {
+            if(CheckArg(6)) {
                 r = Rbitorder(r);
             }
-            if(argv_get(valid, 3)[0] == '-' ) {
+            if(CheckArg(3)) {
                 r = invert(r);
             }
             fputc((unsigned char) r, fp_out);
@@ -228,7 +229,7 @@ int main(int argc, char *argv[]) {
 
 void PrintHelp(char argv[]) {
     printf(
-        "SA to binary converter v1.3\n\n"
+        "SA to binary converter v2\n\n"
         "Usage:\n"
         "%s   -in <file_name>\n"
         "%s   -in <file_name> -out <file_name>\n"
@@ -237,13 +238,13 @@ void PrintHelp(char argv[]) {
         "Options:\n"
         " -in  <file_name>   File input\n"
         " -out <file_name>   File output\n"
-        " -Table <file name> (see github for table format)\n"
+        " -table <file name> (see github for table format)\n"
         // " -c                 Try all combinations\n" // TODO
-        " -e                 Reverse bit order\n"
+        " -r                 Reverse bit order\n"
         " -i                 Invert output\n"
         // " -r                 Rotate conversion table (creates more than one file)\n" //TODO
-        " -s <n>             Shift bits (where n is 1-7)\n"
-        " -t <n>             Type (where n is 2-32)\n"
+        " -skip <n>             Shift bits (where n is 1-7)\n"
+        " -type <n>             Type (where n is 2-32)\n"
         " -h                 Prints this help message\n",
         argv,
         argv,
