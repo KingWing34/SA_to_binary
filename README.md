@@ -160,7 +160,7 @@ cd SA_to_binary
 The executable will be in the build folder that will be created if everything succeeds.
 
 
-## Compiling on linux
+## Compiling on Windows
 
 At the moment there is a batch scrip that will compile the code, but the program does not
 seem to function as it should like on linux.
