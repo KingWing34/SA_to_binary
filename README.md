@@ -146,18 +146,21 @@ Output: 11000000
 
 ## Compiling
 
-On linux you can run this in a terminal if you have g++ installed:
+On linux all you need is g++ installed.
+First clone the repository, then inside it run the compile script.
+
+Example:
 
 ```
-g++ main.cpp -o sa_to_binary
+git clone https://github.com/KingWing34/SA_to_binary.git
+cd SA_to_binary
+./compile_linux.sh
 ```
 
-Currently this program works best on Linux.
-At least compiling for Windows on Linux seems to break something. It runs, but doesn't convert correctly.
+The executable will be in the build folder that will be created if everything succeeds.
 
 ## TODO
 
-* Find a way to compile for Windows so that the program works properly like on Linux.
 * Add option: Try different combinations by rotating the table
-* Add option: Try all combinations.
+* Add option: Try all combinations - (probably useless)
 * Add GUI maybe.
