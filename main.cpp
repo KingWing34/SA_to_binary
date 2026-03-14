@@ -243,8 +243,8 @@ void PrintHelp(char argv[]) {
         " -r                 Reverse bit order\n"
         " -i                 Invert output\n"
         // " -r                 Rotate conversion table (creates more than one file)\n" //TODO
-        " -skip <n>             Shift bits (where n is 1-7)\n"
-        " -type <n>             Type (where n is 2-32)\n"
+        " -skip <n>          Shift bits (where n is 1-7)\n"
+        " -type <n>          Type (where n is 2-32)\n"
         " -h                 Prints this help message\n",
         argv,
         argv,
