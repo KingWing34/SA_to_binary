@@ -162,14 +162,7 @@ The executable will be in the build folder that will be created if everything su
 
 ## Compiling on Windows
 
-At the moment there is a batch scrip that will compile the code, but the program does not
-seem to function as it should like on linux.
-This could be because of variable sizes being interpreted differently on windows
-than on linux maybe. However it "appears" to work when not using an external table
-or when not converting a very "random" file, such as one containing repeating 1010's..
-
-
-If you still want to compile for windows, I recommend getting Mingw-w64 and running the 
+If you want to compile for windows, I recommend getting Mingw-w64 and running the 
 provided batch script within it.
 
 ## TODO
