@@ -16,9 +16,13 @@ Other than converting the ASCII to binary which is described below this program 
 * Reverse the bit order in a byte
 * Use your own custom table (recommended)
 
-### Note: Shift works by placing extra 0's at the beginning of the file.
+### Other notes:
 
-**See "table_example.txt" for the table format**
+**WARNING: Default output name is output.bin - file can be overwritten without confirmation!**
+
+**Shift works by placing extra 0's at the beginning of the file.**
+
+**Also see "table_example.txt" for the table format.**
 
 ## Operation
 
