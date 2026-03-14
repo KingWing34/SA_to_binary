@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
     // Check if the -out option is given, then check if output
     // file is writable otherwise make output file using default name
     if(CheckArg(4)) {
-        if ((fp_out = fopen(out_name,"w")) == NULL) {
+        if ((fp_out = fopen(out_name,"wb")) == NULL) {
 		PrintError(3);
 		return 1;
         }
