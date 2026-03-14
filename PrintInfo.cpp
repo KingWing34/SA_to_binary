@@ -12,7 +12,11 @@ const std::map<int, const char*> ERR_TO_STR = {
     { 7, "Duplicate input character" },
     { 8, "No space or invalid character" },
     { 9, "More than 8 output bits" },
-    { 10, "Invalid character" }
+    { 10, "Invalid character" },
+    { 11, "Input and Output are the same" },
+    { 12, "Missing input file" },
+    { 13, "Invalid output name" },
+
 };
 
 const std::map<int, const char*> INFO_TO_STR = {

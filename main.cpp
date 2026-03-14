@@ -146,8 +146,51 @@ int main(int argc, char *argv[]) {
 
     // Manage file I/O
     FILE *fp_in, *fp_out;
-    char *in_name = GetArgv(0);
-    char *out_name = GetArgv(4);
+    const char *in_name = GetArgv(0);
+    const char *out_name;
+
+    // Set output file name
+    if(CheckArg(4)) {
+        out_name = GetArgv(4);
+    } else {
+        out_name = "output.bin";
+    }
+
+    if(out_name == nullptr) {
+        PrintError(13);
+        return 1;
+    }
+
+    int check {0};
+    int count {0};
+    int IFsize {0};
+    int OFsize {0};
+
+    // Check if input file and output are the same (prevent overwriting input)
+    // Also returns error if input doesn't exist
+    if(GetArgv(1)) {
+
+    // Get size of both strings
+        for(int i {0}; in_name[i] != 0; i++) IFsize++;
+        for(int i {0}; out_name[i] != 0; i++) OFsize++;
+
+    // Check characters if sizes match
+        if(IFsize == OFsize) {
+            while(out_name[count] != 0 && in_name[count] != 0) {
+                if(out_name[count] == in_name[count]) {
+                    check++;
+                }
+                count++;
+            }
+            if(check == count) {
+                PrintError(11);
+                return 1;
+            }
+        }
+    } else {
+        PrintError(12);
+        return 1;
+    }
 
     // Check if input file is readable
     if ((fp_in = fopen(in_name,"rb")) == NULL) {
@@ -155,15 +198,10 @@ int main(int argc, char *argv[]) {
 		return 1;
     }
 
-    // Check if the -out option is given, then check if output
-    // file is writable otherwise make output file using default name
-    if(CheckArg(4)) {
-        if ((fp_out = fopen(out_name,"wb")) == NULL) {
-		PrintError(3);
-		return 1;
-        }
-    } else if ((fp_out = fopen("converter_out.bin","w")) == NULL) {
-        PrintError(3);
+    // Open file for writing
+    if ((fp_out = fopen(out_name,"wb")) == NULL) {
+            PrintError(3);
+            return 1;
     }
 
     // Variables used in the converter code below
